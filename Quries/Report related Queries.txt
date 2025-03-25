@@ -1,0 +1,35 @@
+--Report 1 - Branch Report by City
+
+SELECT b.BankName, br.BranchId, br.BranchName,br.Address,Br.PhoneNumber, c.City, c.Province
+from dbo.city c, dbo.Branch br, dbo.Bank b
+where c.CityDid = br.CityDid
+AND br.Bankdid = b.Bankdid
+order by c.City
+
+--Report 2 - Total Transaction Report
+
+SELECT u.FirstName, u.LastName,aty.AccountTypeId, a.AccountNumber,br.BranchId, t.TransactionDetails, t.CreatedDate,tty.TransactionTypeId,c.CurrencyCode, t.TransactionAmount
+from dbo.[User] u, dbo.Account a, dbo.[Transaction] t, dbo.Currency c, dbo.AccountType aty, dbo.TransactionType tty, dbo.Branch br
+where u.UserDid = a.UserDid
+AND a.AccountDid = t.AccountDid
+AND a.AccountTypeDid = aty.AccountTypeDid
+and t.TransactionTypeDid = tty.TransactionTypeDid
+and a.BranchDid = br.BranchDid
+AND t.CurrencyDid = c.CurrencyDID
+
+--Report 3 - Total Transaction By Branch
+
+Select trc.BranchId,trc.BranchName, sum(trc.TransactionAmount) as SumOfTransaction from (
+	select t.TransactionAmount,b.BranchId,b.BranchName from dbo.[Transaction] t, dbo.Account a, dbo.Branch b 
+	where t.AccountDid = a.AccountDid AND a.BranchDid=b.BranchDid) as Trc
+group by trc.BranchId, trc.BranchName
+
+--Report 4 - Report4_User Last Login Before Jan 2020
+
+SELECT Login_Histrory.FirstName, Login_Histrory.LastName, Login_Histrory.Username, MAX(Login_Histrory.LoginTime) as Last_login
+FROM (
+	SELECT u.FirstName, u.LastName, u.Username, lh.LoginTime
+	FROM dbo.[User] u, dbo.LoginHistory lh
+	WHERE u.UserDid = lh.UserDid) as Login_Histrory
+GROUP BY Login_Histrory.FirstName, Login_Histrory.LastName, Login_Histrory.Username
+Having MAX(Login_Histrory.LoginTime) <'01-01-2020'
